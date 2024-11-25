@@ -1,6 +1,7 @@
 package org.ohrim.taskmanagementsystem.controller;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.ohrim.taskmanagementsystem.dto.comment.CommentPageResponse;
 import org.ohrim.taskmanagementsystem.dto.comment.CommentRequest;
@@ -26,7 +27,7 @@ public class CommentController {
     @PostMapping("/{taskId}")
     public ResponseEntity<CommentResponse> addComment(
             @PathVariable Long taskId,
-            @RequestBody CommentRequest commentRequest,
+            @Valid @RequestBody CommentRequest commentRequest,
             Authentication auth) {
         String authorEmail = auth.getName();
         Comment comment = commentService.addComment(taskId, commentRequest.getContent(), authorEmail);

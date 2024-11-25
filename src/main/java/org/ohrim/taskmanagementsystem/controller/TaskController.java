@@ -1,5 +1,6 @@
 package org.ohrim.taskmanagementsystem.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.ohrim.taskmanagementsystem.dto.task.PaginatedTasksResponse;
 import org.ohrim.taskmanagementsystem.dto.task.TaskRequest;
@@ -24,7 +25,8 @@ public class TaskController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest taskRequest, Authentication authentication) {
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest, Authentication authentication) {
+
         String authorEmail = authentication.getName();
         Task task = taskService.createTask(taskRequest, authorEmail);
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
@@ -33,7 +35,8 @@ public class TaskController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{taskId}")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId, @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskRequest taskRequest) {
+
         Task task = taskService.updateTask(taskId, taskRequest);
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
         return ResponseEntity.ok(taskResponse);
@@ -55,8 +58,6 @@ public class TaskController {
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
         return ResponseEntity.ok(taskResponse);
     }
-
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{taskId}")
@@ -86,7 +87,6 @@ public class TaskController {
         PaginatedTasksResponse taskListResponse = taskMapper.toPaginatedTasksResponse(tasksPage);
         return ResponseEntity.ok(taskListResponse);
     }
-
 
 
 }

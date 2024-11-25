@@ -4,6 +4,7 @@ package org.ohrim.taskmanagementsystem.dto.comment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.ohrim.taskmanagementsystem.entity.task.Status;
 
 @Getter
 @Setter
@@ -12,5 +13,5 @@ public class TaskSummaryResponse {
 
     private Long id;
     private String title;
-    private String status;
+    private Status status;
 }

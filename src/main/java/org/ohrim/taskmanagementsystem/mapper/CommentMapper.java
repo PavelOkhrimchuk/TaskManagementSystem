@@ -27,7 +27,7 @@ public class CommentMapper {
         TaskSummaryResponse taskSummaryResponse = new TaskSummaryResponse();
         taskSummaryResponse.setId(comment.getTask().getId());
         taskSummaryResponse.setTitle(comment.getTask().getTitle());
-        taskSummaryResponse.setStatus(comment.getTask().getStatus().name());
+        taskSummaryResponse.setStatus(comment.getTask().getStatus());
         commentResponse.setTask(taskSummaryResponse);
 
         return commentResponse;

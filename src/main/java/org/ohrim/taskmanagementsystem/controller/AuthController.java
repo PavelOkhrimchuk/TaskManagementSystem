@@ -1,6 +1,7 @@
 package org.ohrim.taskmanagementsystem.controller;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.ohrim.taskmanagementsystem.dto.auth.LoginRequest;
 import org.ohrim.taskmanagementsystem.dto.auth.RegisterRequest;
@@ -19,13 +20,13 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         String token = authenticationService.register(request.getEmail(), request.getPassword(), request.getName());
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
         String token = authenticationService.login(request.getEmail(), request.getPassword());
         return ResponseEntity.ok(token);
     }
