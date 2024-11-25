@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.ohrim.taskmanagementsystem.entity.Comment;
 import org.ohrim.taskmanagementsystem.entity.Task;
 import org.ohrim.taskmanagementsystem.entity.User;
+import org.ohrim.taskmanagementsystem.exception.task.ResourceNotFoundException;
 import org.ohrim.taskmanagementsystem.repository.CommentRepository;
 import org.ohrim.taskmanagementsystem.repository.TaskRepository;
 import org.ohrim.taskmanagementsystem.repository.UserRepository;
@@ -27,9 +28,10 @@ public class CommentService {
     @Transactional
     public Comment addComment(Long taskId, String content, String authorEmail) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
         User author = userRepository.findByEmail(authorEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
 
         Comment comment = Comment.builder()
                 .content(content)

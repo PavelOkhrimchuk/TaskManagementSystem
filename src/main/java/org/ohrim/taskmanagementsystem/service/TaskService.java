@@ -7,12 +7,14 @@ import org.ohrim.taskmanagementsystem.entity.Task;
 import org.ohrim.taskmanagementsystem.entity.User;
 import org.ohrim.taskmanagementsystem.entity.task.Status;
 import org.ohrim.taskmanagementsystem.entity.user.Role;
+import org.ohrim.taskmanagementsystem.exception.task.InvalidRequestException;
+import org.ohrim.taskmanagementsystem.exception.task.ResourceNotFoundException;
+import org.ohrim.taskmanagementsystem.exception.task.TaskStatusException;
 import org.ohrim.taskmanagementsystem.repository.TaskRepository;
 import org.ohrim.taskmanagementsystem.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +31,16 @@ public class TaskService {
     @Transactional
     public Task createTask(TaskRequest taskRequest, String authorEmail) {
         User author = userRepository.findByEmail(authorEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
 
         User executor = null;
         if (taskRequest.getExecutorEmail() != null && !taskRequest.getExecutorEmail().isEmpty()) {
             executor = userRepository.findByEmail(taskRequest.getExecutorEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Executor not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Executor not found"));
+        }
+
+        if (taskRequest.getTitle() == null || taskRequest.getTitle().isEmpty()) {
+            throw new InvalidRequestException("Task title cannot be null or empty");
         }
 
         Task task = Task.builder()
@@ -54,11 +60,11 @@ public class TaskService {
     @Transactional
     public Task updateTask(Long taskId, TaskRequest taskRequest) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (taskRequest.getExecutorEmail() != null) {
             User executor = userRepository.findByEmail(taskRequest.getExecutorEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Executor not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Executor not found"));
             task.setExecutor(executor);
         }
 
@@ -70,20 +76,21 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-
     @Transactional
     public void deleteTask(Long taskId) {
+        if (!taskRepository.existsById(taskId)) {
+            throw new ResourceNotFoundException("Task not found");
+        }
         taskRepository.deleteById(taskId);
     }
 
     @Transactional
     public Task changeStatus(Long taskId, Status status, String userEmail) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-
-        if (!task.getExecutor().getEmail().equals(userEmail) && !isAdmin(userEmail)) {
-            throw new AccessDeniedException("You are not authorized to change the status of this task");
+        if (status == null) {
+            throw new TaskStatusException("Invalid task status");
         }
 
         task.setStatus(status);
@@ -91,22 +98,19 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)
                 .map(user -> user.getRole() == Role.ADMIN)
                 .orElse(false);
     }
 
-
-
     @Transactional
     public Task assignExecutor(Long taskId, String executorEmail) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         User executor = userRepository.findByEmail(executorEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Executor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Executor not found"));
 
         task.setExecutor(executor);
         task.setUpdatedAt(Instant.now());
@@ -114,17 +118,16 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-
     @Transactional(readOnly = true)
     public Page<Task> getTasksByAuthor(String authorEmail, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return taskRepository.findAllByAuthor_Email(authorEmail, pageable);
+        return taskRepository.findAllByAuthorEmail(authorEmail, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Task> getTasksByExecutor(String executorEmail, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return taskRepository.findAllByExecutor_Email(executorEmail, pageable);
+        return taskRepository.findAllByExecutorEmail(executorEmail, pageable);
     }
 
 }

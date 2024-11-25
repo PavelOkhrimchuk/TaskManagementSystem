@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.ohrim.taskmanagementsystem.configuration.security.JwtTokenProvider;
 import org.ohrim.taskmanagementsystem.entity.User;
 import org.ohrim.taskmanagementsystem.entity.user.Role;
+import org.ohrim.taskmanagementsystem.exception.user.EmailAlreadyTakenException;
+import org.ohrim.taskmanagementsystem.exception.user.InvalidCredentialsException;
+import org.ohrim.taskmanagementsystem.exception.user.UserNotFoundException;
 import org.ohrim.taskmanagementsystem.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +26,7 @@ public class AuthenticationService {
 
     public String register(String email, String password, String name) {
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already taken");
+            throw new EmailAlreadyTakenException("Email is already taken: " + email);
         }
 
         User user = User.builder()
@@ -39,9 +42,14 @@ public class AuthenticationService {
     }
 
     public String login(String email, String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (Exception ex) {
+            throw new InvalidCredentialsException("Invalid email or password.");
+        }
+
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found."));
 
         return jwtTokenProvider.generateToken(user);
     }

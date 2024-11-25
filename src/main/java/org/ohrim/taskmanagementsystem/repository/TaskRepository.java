@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
 
-    Page<Task> findAllByAuthor_Email(String authorEmail, Pageable pageable);
+    Page<Task> findAllByAuthorEmail(String authorEmail, Pageable pageable);
 
-    Page<Task> findAllByExecutor_Email(String executorEmail, Pageable pageable);
+    Page<Task> findAllByExecutorEmail(String executorEmail, Pageable pageable);
 }
