@@ -9,6 +9,9 @@ import org.ohrim.taskmanagementsystem.entity.task.Status;
 import org.ohrim.taskmanagementsystem.entity.user.Role;
 import org.ohrim.taskmanagementsystem.repository.TaskRepository;
 import org.ohrim.taskmanagementsystem.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,6 +112,19 @@ public class TaskService {
         task.setUpdatedAt(Instant.now());
 
         return taskRepository.save(task);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<Task> getTasksByAuthor(String authorEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findAllByAuthor_Email(authorEmail, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Task> getTasksByExecutor(String executorEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findAllByExecutor_Email(executorEmail, pageable);
     }
 
 }
