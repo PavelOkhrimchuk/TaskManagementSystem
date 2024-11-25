@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +41,6 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    @Transactional(readOnly = true)
-    public List<Comment> getCommentsByTask(Long taskId) {
-        return commentRepository.findAllByTaskId(taskId);
-    }
 
 
     @Transactional(readOnly = true)

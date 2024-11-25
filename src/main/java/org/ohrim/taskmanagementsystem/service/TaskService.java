@@ -2,9 +2,9 @@ package org.ohrim.taskmanagementsystem.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.ohrim.taskmanagementsystem.dto.task.TaskRequest;
 import org.ohrim.taskmanagementsystem.entity.Task;
 import org.ohrim.taskmanagementsystem.entity.User;
-import org.ohrim.taskmanagementsystem.entity.task.Priority;
 import org.ohrim.taskmanagementsystem.entity.task.Status;
 import org.ohrim.taskmanagementsystem.entity.user.Role;
 import org.ohrim.taskmanagementsystem.repository.TaskRepository;
@@ -27,21 +27,21 @@ public class TaskService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Task createTask(String title, String description, Priority priority, String authorEmail, String executorEmail) {
+    public Task createTask(TaskRequest taskRequest, String authorEmail) {
         User author = userRepository.findByEmail(authorEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Author not found"));
 
         User executor = null;
-        if (executorEmail != null && !executorEmail.isEmpty()) {
-            executor = userRepository.findByEmail(executorEmail)
+        if (taskRequest.getExecutorEmail() != null && !taskRequest.getExecutorEmail().isEmpty()) {
+            executor = userRepository.findByEmail(taskRequest.getExecutorEmail())
                     .orElseThrow(() -> new IllegalArgumentException("Executor not found"));
         }
 
         Task task = Task.builder()
-                .title(title)
-                .description(description)
+                .title(taskRequest.getTitle())
+                .description(taskRequest.getDescription())
                 .status(Status.IN_PROGRESS)
-                .priority(priority)
+                .priority(taskRequest.getPriority())
                 .author(author)
                 .executor(executor)
                 .createdAt(Instant.now())
@@ -51,25 +51,25 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-
     @Transactional
-    public Task updateTask(Long taskId, String title, String description, Priority priority, String executorEmail) {
+    public Task updateTask(Long taskId, TaskRequest taskRequest) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        if (executorEmail != null) {
-            User executor = userRepository.findByEmail(executorEmail)
+        if (taskRequest.getExecutorEmail() != null) {
+            User executor = userRepository.findByEmail(taskRequest.getExecutorEmail())
                     .orElseThrow(() -> new IllegalArgumentException("Executor not found"));
             task.setExecutor(executor);
         }
 
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setPriority(priority);
+        task.setTitle(taskRequest.getTitle());
+        task.setDescription(taskRequest.getDescription());
+        task.setPriority(taskRequest.getPriority());
         task.setUpdatedAt(Instant.now());
 
         return taskRepository.save(task);
     }
+
 
     @Transactional
     public void deleteTask(Long taskId) {
