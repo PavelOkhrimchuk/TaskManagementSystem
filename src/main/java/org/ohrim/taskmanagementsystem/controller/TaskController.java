@@ -5,6 +5,7 @@ import org.ohrim.taskmanagementsystem.dto.TaskRequest;
 import org.ohrim.taskmanagementsystem.entity.Task;
 import org.ohrim.taskmanagementsystem.entity.task.Status;
 import org.ohrim.taskmanagementsystem.service.TaskService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -61,6 +62,26 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         taskService.deleteTask(taskId);
         return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @GetMapping("/author")
+    public ResponseEntity<Page<Task>> getTasksByAuthor(
+            @RequestParam String authorEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Task> tasks = taskService.getTasksByAuthor(authorEmail, page, size);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @GetMapping("/executor")
+    public ResponseEntity<Page<Task>> getTasksByExecutor(
+            @RequestParam String executorEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Task> tasks = taskService.getTasksByExecutor(executorEmail, page, size);
+        return ResponseEntity.ok(tasks);
     }
 
 
