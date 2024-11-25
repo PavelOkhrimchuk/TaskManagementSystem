@@ -46,9 +46,5 @@ public class AuthenticationService {
         return jwtTokenProvider.generateToken(user);
     }
 
-    public void promoteToAdmin(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-        user.setRole(Role.ADMIN);
-        userRepository.save(user);
-    }
+
 }
