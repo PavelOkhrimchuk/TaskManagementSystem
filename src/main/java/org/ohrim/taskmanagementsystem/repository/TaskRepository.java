@@ -11,4 +11,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findAllByAuthorEmail(String authorEmail, Pageable pageable);
 
     Page<Task> findAllByExecutorEmail(String executorEmail, Pageable pageable);
+
+    boolean existsByIdAndExecutorEmail(Long id, String executorEmail);
 }

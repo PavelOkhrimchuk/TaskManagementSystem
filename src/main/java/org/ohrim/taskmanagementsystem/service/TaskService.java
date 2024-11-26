@@ -6,7 +6,6 @@ import org.ohrim.taskmanagementsystem.dto.task.TaskRequest;
 import org.ohrim.taskmanagementsystem.entity.Task;
 import org.ohrim.taskmanagementsystem.entity.User;
 import org.ohrim.taskmanagementsystem.entity.task.Status;
-import org.ohrim.taskmanagementsystem.entity.user.Role;
 import org.ohrim.taskmanagementsystem.exception.task.InvalidRequestException;
 import org.ohrim.taskmanagementsystem.exception.task.ResourceNotFoundException;
 import org.ohrim.taskmanagementsystem.exception.task.TaskStatusException;
@@ -15,6 +14,7 @@ import org.ohrim.taskmanagementsystem.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,11 +98,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    private boolean isAdmin(String email) {
-        return userRepository.findByEmail(email)
-                .map(user -> user.getRole() == Role.ADMIN)
-                .orElse(false);
-    }
+
 
     @Transactional
     public Task assignExecutor(Long taskId, String executorEmail) {
@@ -129,6 +125,22 @@ public class TaskService {
         Pageable pageable = PageRequest.of(page, size);
         return taskRepository.findAllByExecutorEmail(executorEmail, pageable);
     }
+
+    @Transactional(readOnly = true)
+    public boolean isAdmin(Authentication authentication) {
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean canAccessTask(Long taskId, String userEmail) {
+
+        return taskRepository.existsByIdAndExecutorEmail(taskId, userEmail);
+    }
+
+
+
 
 }
 
