@@ -19,4 +19,12 @@ public class AdminService {
         user.setRole(Role.ADMIN);
         userRepository.save(user);
     }
+
+
+    public void demoteToUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found."));
+        user.setRole(Role.USER);
+        userRepository.save(user);
+    }
 }
