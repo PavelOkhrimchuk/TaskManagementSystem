@@ -12,7 +12,6 @@ import org.ohrim.taskmanagementsystem.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,16 +51,6 @@ public class CommentService {
         return commentRepository.findAllByTaskId(taskId, pageable);
     }
 
-    @Transactional(readOnly = true)
-    public boolean isAdmin(Authentication auth) {
-        return auth.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
-    }
-
-    @Transactional(readOnly = true)
-    public boolean canAccessTask(Long taskId, String userEmail, boolean isAdmin) {
-        return isAdmin || taskRepository.existsByIdAndExecutorEmail(taskId, userEmail);
-    }
 
 
 }

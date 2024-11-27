@@ -48,6 +48,11 @@ public class TaskController {
                     responseCode = "400",
                     description = "Invalid request body",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest, Authentication authentication) {
@@ -70,16 +75,29 @@ public class TaskController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Task not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
+
     })
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskRequest taskRequest) {
         Task task = taskService.updateTask(taskId, taskRequest);
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
         return ResponseEntity.ok(taskResponse);
     }
+
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{taskId}/executor")
@@ -96,6 +114,11 @@ public class TaskController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Task or executor not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
@@ -136,10 +159,10 @@ public class TaskController {
     public ResponseEntity<TaskResponse> changeStatus(
             @PathVariable Long taskId,
             @RequestParam Status status,
-            Authentication authentication) {
+            Authentication auth) {
 
-        String userEmail = authentication.getName();
-        boolean isAdmin = taskService.isAdmin(authentication);
+        String userEmail = auth.getName();
+        boolean isAdmin = taskService.isAdmin(auth);
 
 
         if (!isAdmin && !taskService.canAccessTask(taskId, userEmail)) {
@@ -166,6 +189,11 @@ public class TaskController {
                     responseCode = "404",
                     description = "Task not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have permission to change the status of the task",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
@@ -184,11 +212,6 @@ public class TaskController {
                     responseCode = "200",
                     description = "Successfully retrieved tasks",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaginatedTasksResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "No tasks found for the specified author",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     public ResponseEntity<PaginatedTasksResponse> getTasksByAuthor(
@@ -212,11 +235,6 @@ public class TaskController {
                     description = "Successfully retrieved tasks",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaginatedTasksResponse.class))
             ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "No tasks found for the specified executor",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-            )
     })
     public ResponseEntity<PaginatedTasksResponse> getTasksByExecutor(
             @RequestParam String executorEmail,

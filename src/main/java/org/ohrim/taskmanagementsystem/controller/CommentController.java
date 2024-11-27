@@ -16,6 +16,7 @@ import org.ohrim.taskmanagementsystem.dto.comment.CommentResponse;
 import org.ohrim.taskmanagementsystem.entity.Comment;
 import org.ohrim.taskmanagementsystem.mapper.CommentMapper;
 import org.ohrim.taskmanagementsystem.service.CommentService;
+import org.ohrim.taskmanagementsystem.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     private final CommentService commentService;
     private final CommentMapper commentMapper;
+    private final TaskService taskService;
 
 
 
@@ -65,9 +67,11 @@ public class CommentController {
             @PathVariable Long taskId,
             @Valid @RequestBody CommentRequest commentRequest,
             Authentication auth) {
-        boolean isAdmin = commentService.isAdmin(auth);
-        if (!commentService.canAccessTask(taskId, auth.getName(), isAdmin)) {
-            throw new AccessDeniedException("You do not have permission to add a comment to this task.");
+
+        String userEmail = auth.getName();
+        boolean isAdmin = taskService.isAdmin(auth);
+        if (!isAdmin && !taskService.canAccessTask(taskId, userEmail)) {
+            throw new AccessDeniedException("You do not have permission to change the status of this task.");
         }
 
         Comment comment = commentService.addComment(taskId, commentRequest.getContent(), auth.getName());

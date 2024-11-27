@@ -11,6 +11,7 @@ import org.ohrim.taskmanagementsystem.dto.ErrorResponse;
 import org.ohrim.taskmanagementsystem.dto.SuccessResponse;
 import org.ohrim.taskmanagementsystem.service.AdminService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,8 @@ public class AdminController {
 
     private final AdminService adminService;
 
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/promote")
     @Operation(
             summary = "Promote user to admin",
@@ -41,12 +44,14 @@ public class AdminController {
                     description = "User not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
+
     })
     public ResponseEntity<SuccessResponse> promoteToAdmin(@RequestParam String email) {
         adminService.promoteToAdmin(email);
         return ResponseEntity.ok(new SuccessResponse("User with email " + email + " successfully promoted to admin."));
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/demote")
     @Operation(
             summary = "Demote admin to user",
