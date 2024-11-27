@@ -152,7 +152,7 @@ public class TaskController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "User does not have permission to change the status of the task",
+                    description = "User non executor does not have permission to change the status of the task or access denied " ,
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
@@ -192,7 +192,7 @@ public class TaskController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "User does not have permission to change the status of the task",
+                    description = "Access denied",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })

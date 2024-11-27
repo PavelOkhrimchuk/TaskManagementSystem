@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -24,6 +25,8 @@ public class AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
+
+    @Transactional
     public String register(String email, String password, String name) {
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyTakenException("Email is already taken: " + email);
@@ -41,6 +44,7 @@ public class AuthenticationService {
         return jwtTokenProvider.generateToken(user);
     }
 
+    @Transactional
     public String login(String email, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));

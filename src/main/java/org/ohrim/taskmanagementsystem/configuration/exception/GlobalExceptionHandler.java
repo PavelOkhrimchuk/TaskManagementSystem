@@ -12,6 +12,7 @@ import org.ohrim.taskmanagementsystem.exception.user.InvalidCredentialsException
 import org.ohrim.taskmanagementsystem.exception.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -106,6 +107,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTaskStatusException(TaskStatusException ex) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
 
 
 

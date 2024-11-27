@@ -59,7 +59,7 @@ public class CommentController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Access denied",
+                    description = "User non executor does not have permission to comment or access denied",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
