@@ -22,10 +22,11 @@
    Убедитесь, что PostgreSQL работает локально, и настройте `application-local.properties` следующим образом:
 
    ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5441/managementsystem
-   spring.datasource.username=ohrim
-   spring.datasource.password=ohrim
+   spring.datasource.url=jdbc:postgresql://<host>:<port>/<database>
+   spring.datasource.username=<username>
+   spring.datasource.password=<password>
    spring.datasource.driver-class-name=org.postgresql.Driver
+
    ```
  3.   **Запуск приложения**  
     Убедитесь, что в application.properties установлено:
