@@ -34,6 +34,7 @@ public class User {
     private Role role;
 
     @Column(nullable = false, updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
 
